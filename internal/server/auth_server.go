@@ -1,29 +1,40 @@
 package server
 
 import (
-    "fmt"
     "net/http"
 
     "github.com/go-chi/chi/v5"
+
+    "central-auth/internal/db"
 )
 
 type AuthServer struct {
-    address string
+    addr string
+    db *database.Database
     router chi.Router
 }
 
-func NewAuthServer(host string, port int) *AuthServer {
-    router := chi.NewRouter()
+func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
+    db, err := database.NewDatabase(dbURL)
+    if err != nil {
+        return nil, err
+    }
 
+    router := chi.NewRouter()
     // Endpoints
     // ...
 
     return &AuthServer{
-        address: fmt.Sprintf("%s:%d", host, port),
+        addr: addr,
+        db: db,
         router: router,
-    }
+    }, nil
 }
 
 func (server *AuthServer) Start() {
-    http.ListenAndServe(server.address, server.router)
+    http.ListenAndServe(server.addr, server.router)
+}
+
+func (server *AuthServer) Close() {
+    server.db.Close()
 }
