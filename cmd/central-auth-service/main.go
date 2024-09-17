@@ -32,15 +32,13 @@ func main() {
     if err != nil {
         log.Fatalf("error starting authentication server: %v", err)
     }
-    go func() {
-        fmt.Println("starting server")
-        authServer.Start()
-    }()
+    fmt.Println("starting authentication server")
+    go authServer.Start()
     defer authServer.Close()
 
     stop := make(chan os.Signal, 1)
     signal.Notify(stop, os.Interrupt)
     <-stop
 
-    fmt.Println("stopping server")
+    fmt.Println("stopping authentication server")
 }
