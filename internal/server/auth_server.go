@@ -4,7 +4,9 @@ import (
     "net/http"
 
     "github.com/go-chi/chi/v5"
+    "github.com/luke-walker/go-validate"
 
+    "central-auth/internal/controllers"
     "central-auth/internal/db"
 )
 
@@ -20,21 +22,32 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
         return nil, err
     }
 
-    router := chi.NewRouter()
-    // Endpoints
-    // ...
+    /* Controllers */
+    serverController := controllers.NewServerController(db)
+
+    /* Routers */
+    r := chi.NewRouter()
+    r.Route("/servers", func(r chi.Router) {
+        r.With(govalidate.Validator{
+            Fields: govalidate.FieldsMap{
+                "name": { "required": true },
+                "addrs": { "required": true },
+                "redirect": { "required": false },
+            },
+        }.ValidateJSON).Post("/", serverController.CreateServer)
+    })
 
     return &AuthServer{
         addr: addr,
         db: db,
-        router: router,
+        router: r,
     }, nil
 }
 
-func (server *AuthServer) Start() {
-    http.ListenAndServe(server.addr, server.router)
+func (authServer *AuthServer) Start() {
+    http.ListenAndServe(authServer.addr, authServer.router)
 }
 
-func (server *AuthServer) Close() {
-    server.db.Close()
+func (authServer *AuthServer) Close() {
+    authServer.db.Close()
 }
