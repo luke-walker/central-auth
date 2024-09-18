@@ -34,28 +34,28 @@ func (db *Database) getConnection() (*pgxpool.Conn, error) {
 func (db *Database) Exec(query string, params ...any) (int64, error) {
     conn, err := db.getConnection()
     if err != nil {
-        return -1, err
+        return 0, err
     }
     defer conn.Release()
 
     commandTag, err := conn.Exec(context.Background(), query, params...)
     if err != nil {
-        return -2, err
+        return 0, err
     }
 
     return commandTag.RowsAffected(), nil
 }
 
-func (db *Database) Query(scan func(pgx.Rows) error, query string, params ...any) error {
+func (db *Database) Query(scan func(pgx.Rows) (int, error), query string, params ...any) (int, error) {
     conn, err := db.getConnection()
     if err != nil {
-        return err
+        return 0, err
     }
     defer conn.Release()
 
     rows, err := conn.Query(context.Background(), query, params...)
     if err != nil {
-        return err
+        return 0, err
     }
     defer rows.Close()
 
