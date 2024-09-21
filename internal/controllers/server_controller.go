@@ -28,7 +28,7 @@ func NewServerController(db *database.Database) *ServerController {
 
 func (c *ServerController) CreateServer(w http.ResponseWriter, r *http.Request) {
     if r.Method != http.MethodPost {
-        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+        errInvalidRequestMethod(w)
         return
     }
 

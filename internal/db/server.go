@@ -8,6 +8,7 @@ type ServerInfo struct {
     Name string
     Addrs []string
     Redirect string
+    Token string
 }
 
 func (db *Database) CreateServer(name string, addrs []string, redirect string) error {
@@ -26,14 +27,14 @@ func (db *Database) CreateServer(name string, addrs []string, redirect string) e
 
 func (db *Database) GetAllServerInfo() ([]ServerInfo, int, error) {
     query := `
-        SELECT name, addresses, redirect_url
+        SELECT name, addresses, redirect_url, token
         FROM servers`
 
     var serverInfos []ServerInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         for rows.Next() {
             var serverInfo ServerInfo
-            rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect)
+            rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
             serverInfos = append(serverInfos, serverInfo)
         }
         return len(serverInfos), nil
@@ -43,21 +44,40 @@ func (db *Database) GetAllServerInfo() ([]ServerInfo, int, error) {
     return serverInfos, numRows, err
 }
 
-func (db *Database) GetServerInfoByName(name string) (ServerInfo, int, error) {
+func (db *Database) GetServerInfoByToken(token string) (ServerInfo, int, error) {
     query := `
-        SELECT name, addresses, redirect_url
+        SELECT name, addresses, redirect_url, token
         FROM servers
-        WHERE name = $1`
+        WHERE token = $1`
 
     var serverInfo ServerInfo 
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect)
+            rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
             return 1, nil
         }
         return 0, nil
     }
 
-    numRows, err := db.Query(scanFn, query, name)
+    numRows, err := db.Query(scanFn, query, token)
+    return serverInfo, numRows, err
+}
+
+func (db *Database) GetServerInfoByID(id string) (ServerInfo, int, error) {
+    query := `
+        SELECT id, name, addresses, redirect_url, token
+        FROM servers
+        WHERE id = $1`
+
+    var serverInfo ServerInfo
+    scanFn := func(rows pgx.Rows) (int, error) {
+        if rows.Next() {
+            rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
+            return 1, nil
+        }
+        return 0, nil
+    }
+
+    numRows, err := db.Query(scanFn, query, id)
     return serverInfo, numRows, err
 }

@@ -23,18 +23,28 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
     }
 
     /* Controllers */
+    authController := controllers.NewAuthController(db)
     serverController := controllers.NewServerController(db)
 
     /* Routers */
     r := chi.NewRouter()
-    r.Route("/servers", func(r chi.Router) {
+    r.Route("/auth", func(r chi.Router) {
+        r.Get("/login/{serverToken}", authController.GetLoginPage)
+        r.With(govalidate.Validator{
+            Fields: govalidate.FieldsMap{
+                "username": { "required": true },
+                "password": { "required": true },
+            },
+        }.ValidateData).Post("/login/{serverToken}", authController.AttemptUserLogin)
+    })
+    r.Route("/server", func(r chi.Router) {
         r.With(govalidate.Validator{
             Fields: govalidate.FieldsMap{
                 "name": { "required": true },
                 "addrs": { "required": true },
-                "redirect": { "required": false },
+                "redirect": { "required": true },
             },
-        }.ValidateJSON).Post("/", serverController.CreateServer)
+        }.ValidateData).Post("/", serverController.CreateServer)
     })
 
     return &AuthServer{

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Central Auth | {{.ServerName}}</title>
+    </head>
+    <body>
+        <form class="login-form" action="/auth/login/{{.ServerToken}}" method="post">
+            <input type="text" name="username" placeholder="Username" />
+            <input type="password" name="password" placeholder="Password" />
+            <input type="submit" value="Login" />
+        </form>
+    </body>
+</html>
