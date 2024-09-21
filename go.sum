@@ -15,6 +15,10 @@ github.com/luke-walker/go-validate v0.1.0 h1:aXd3jlc22po3d9+L8LGlN6tg8+bQ0GnpOQu
 github.com/luke-walker/go-validate v0.1.0/go.mod h1:KqTffE8cI4w2Qt1xZLp8vCQl7dS4AuXRcAk/kFmCaeI=
 github.com/luke-walker/go-validate v0.1.1 h1:hP7xy9RFSmyJKAe9EbcPs7c2y1FEAToe400uq4lqB4s=
 github.com/luke-walker/go-validate v0.1.1/go.mod h1:KqTffE8cI4w2Qt1xZLp8vCQl7dS4AuXRcAk/kFmCaeI=
+github.com/luke-walker/go-validate v0.2.0 h1:OjPkn0wpQ/X9BwkS14PdhbOtLd01tGphgq9bGRGEpq8=
+github.com/luke-walker/go-validate v0.2.0/go.mod h1:KqTffE8cI4w2Qt1xZLp8vCQl7dS4AuXRcAk/kFmCaeI=
+github.com/luke-walker/go-validate v0.3.0 h1:vgsSlQeCWRHEOYXfAOx0C4IhC8BZOdMzZjzG+CxBRuM=
+github.com/luke-walker/go-validate v0.3.0/go.mod h1:KqTffE8cI4w2Qt1xZLp8vCQl7dS4AuXRcAk/kFmCaeI=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
