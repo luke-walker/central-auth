@@ -12,9 +12,10 @@ type UserInfo struct {
     Username string
     Password string
     LastIP string
+    Admin bool
 }
 
-/* TODO: Insert user IP */
+/* TODO: Insert user IP as last_ip */
 func (db *Database) CreateUser(username string, password string) error {
     query := `
         INSERT INTO users (username, password)
@@ -31,14 +32,14 @@ func (db *Database) CreateUser(username string, password string) error {
 
 func (db *Database) GetUserInfoByUsername(username string) (UserInfo, int, error) {
     query := `
-        SELECT id, token, username, password, last_ip
+        SELECT id, token, username, password, last_ip, admin
         FROM users
         WHERE username = $1`
 
     var userInfo UserInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&userInfo.ID, &userInfo.Token, &userInfo.Username, &userInfo.Password, &userInfo.LastIP)
+            rows.Scan(&userInfo.ID, &userInfo.Token, &userInfo.Username, &userInfo.Password, &userInfo.LastIP, &userInfo.Admin)
             return 1, nil
         }
         return 0, nil

@@ -15,6 +15,7 @@ CREATE TABLE users (
     username        text UNIQUE NOT NULL,
     password        text NOT NULL,
     last_ip         text,
+    admin           boolean NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id, token)
 );
 
