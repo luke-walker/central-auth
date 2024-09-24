@@ -36,6 +36,14 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
                 "password": { "required": true },
             },
         }.ValidateData).Post("/login/{serverToken}", authController.AttemptUserLogin)
+
+        r.Get("/signup/{serverToken}", authController.GetSignupPage)
+        r.With(govalidate.Validator{
+            Fields: govalidate.FieldsMap{
+                "username": { "required": true },
+                "password": { "required": true },
+            },
+        }.ValidateData).Post("/signup/{serverToken}", authController.AttemptUserSignUp)
     })
     r.Route("/server", func(r chi.Router) {
         r.With(govalidate.Validator{

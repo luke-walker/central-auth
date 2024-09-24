@@ -16,18 +16,26 @@ type UserInfo struct {
 }
 
 /* TODO: Insert user IP as last_ip */
-func (db *Database) CreateUser(username string, password string) error {
+func (db *Database) CreateUser(username string, password string, userIp string) (bool, error) { // returns if the username is available
+    _, numRows, err := db.GetUserInfoByUsername(username)
+    if err != nil {
+        return false, err
+    }
+    if numRows != 0 {
+        return false, nil
+    }
+
     query := `
-        INSERT INTO users (username, password)
-        VALUES ($1, $2)`
+        INSERT INTO users (username, password, last_ip)
+        VALUES ($1, $2, $3)`
 
     hash, err := crypto.HashPassword(password)
     if err != nil {
-        return err
+        return true, err
     }
 
-    _, err = db.Exec(query, username, hash)
-    return err
+    _, err = db.Exec(query, username, hash, userIp)
+    return true, err
 }
 
 func (db *Database) GetUserInfoByUsername(username string) (UserInfo, int, error) {
@@ -46,5 +54,24 @@ func (db *Database) GetUserInfoByUsername(username string) (UserInfo, int, error
     }
 
     numRows, err := db.Query(scanFn, query, username)
+    return userInfo, numRows, err
+}
+
+func (db *Database) GetUserInfoByToken(token string) (UserInfo, int, error) {
+    query := `
+        SELECT id, token, username, password, last_ip, admin
+        FROM users
+        WHERE token = $1`
+
+    var userInfo UserInfo
+    scanFn := func(rows pgx.Rows) (int, error) {
+        if rows.Next() {
+            rows.Scan(&userInfo.ID, &userInfo.Token, &userInfo.Username, &userInfo.Password, &userInfo.LastIP, &userInfo.Admin)
+            return 1, nil
+        }
+        return 0, nil
+    }
+
+    numRows, err := db.Query(scanFn, query, token)
     return userInfo, numRows, err
 }

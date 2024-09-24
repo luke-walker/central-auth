@@ -30,22 +30,27 @@ func (c *AuthController) GetLoginPage(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    /* Verify Server */
     serverToken := chi.URLParam(r, "serverToken")
+    if serverToken == "" {
+        http.Error(w, "Missing server token as URL parameter", http.StatusBadRequest)
+        return
+    }
+
+    /* Verify Server */
     serverInfo, numRows, err := c.db.GetServerInfoByToken(serverToken)
     if err != nil {
         http.Error(w, "Error retrieving server information", http.StatusInternalServerError)
         return
     }
     if numRows == 0 {
-        http.Error(w, fmt.Sprintf("Could not find matching server token '%s'", serverToken), http.StatusUnauthorized)
+        http.Error(w, "Could not find matching server token", http.StatusUnauthorized)
         return
     }
 
     /* Send login page */
     loginTemplate, err := template.ParseFiles(fmt.Sprintf("%s/internal/templates/login.html.tmpl", os.Getenv("PROJECT_PATH")))
     if err != nil {
-        http.Error(w, fmt.Sprintf("Error parsing login.html template: %v", err), http.StatusInternalServerError)
+        http.Error(w, "Error parsing login.html template", http.StatusInternalServerError)
         return
     }
     loginTemplate.Execute(w, struct{
@@ -53,7 +58,7 @@ func (c *AuthController) GetLoginPage(w http.ResponseWriter, r *http.Request) {
         ServerToken string
     }{
         ServerName: serverInfo.Name,
-        ServerToken: chi.URLParam(r, "serverToken"),
+        ServerToken: serverToken,
     })
 }
 
@@ -67,25 +72,25 @@ func (c *AuthController) AttemptUserLogin(w http.ResponseWriter, r *http.Request
         return
     }
 
-    /* User IP */
-    userIp := r.Header.Get("X-Forwarded-For")
-    if userIp == "" {
-        userIp = r.RemoteAddr
+    serverToken := chi.URLParam(r, "serverToken")
+    if serverToken == "" {
+        http.Error(w, "Missing server token as URL parameter", http.StatusBadRequest)
+        return
     }
 
     /* Verify Server */
-    serverToken := chi.URLParam(r, "serverToken")
     serverInfo, numRows, err := c.db.GetServerInfoByToken(serverToken)
     if err != nil {
         http.Error(w, "Error retrieving server information", http.StatusInternalServerError)
         return
     }
     if numRows == 0 {
-        http.Error(w, fmt.Sprintf("Could not find matching server token '%s'", serverToken), http.StatusUnauthorized)
+        http.Error(w, "Could not find matching server token", http.StatusUnauthorized)
         return
     }
 
     /* Verify User */
+    userIp := getUserIp(r)
     username := r.PostForm["username"][0]
     password := r.PostForm["password"][0]
     userInfo, numRows, err := c.db.GetUserInfoByUsername(username)
@@ -141,4 +146,85 @@ func (c *AuthController) AttemptUserLogin(w http.ResponseWriter, r *http.Request
 
     /* Redirect */
     http.Redirect(w, r, serverInfo.Redirect, http.StatusSeeOther)
+}
+
+func (c *AuthController) GetSignupPage(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodGet {
+        errInvalidRequestMethod(w)
+        return
+    }
+
+    serverToken := chi.URLParam(r, "serverToken")
+    if serverToken == "" {
+        http.Error(w, "Missing server token as URL parameter", http.StatusBadRequest)
+        return
+    }
+    
+    /* Verify Server */
+    _, numRows, err := c.db.GetServerInfoByToken(serverToken)
+    if err != nil {
+        http.Error(w, "Error retrieving server information", http.StatusInternalServerError)
+        return
+    }
+    if numRows == 0 {
+        http.Error(w, "Could not find matching server token", http.StatusUnauthorized)
+        return
+    }
+    
+    /* Send Signup Page */
+    signupTemplate, err := template.ParseFiles(fmt.Sprintf("%s/internal/templates/signup.html.tmpl", os.Getenv("PROJECT_PATH")))
+    if err != nil {
+        http.Error(w, "Error parsing signup.html template", http.StatusInternalServerError)
+        return
+    }
+    signupTemplate.Execute(w, struct{
+        ServerToken string
+    }{
+        ServerToken: serverToken,
+    })
+}
+
+func (c *AuthController) AttemptUserSignUp(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        errInvalidRequestMethod(w)
+        return
+    }
+    if err := r.ParseForm(); err != nil {
+        http.Error(w, "Error parsing URL-encoded form", http.StatusInternalServerError)
+        return
+    }
+
+    serverToken := chi.URLParam(r, "serverToken")
+    if serverToken == "" {
+        http.Error(w, "Missing server token as URL parameter", http.StatusBadRequest)
+        return
+    }
+
+    /* Verify Server */
+    _, numRows, err := c.db.GetServerInfoByToken(serverToken)
+    if err != nil {
+        http.Error(w, "Error retrieving server information", http.StatusInternalServerError)
+        return
+    }
+    if numRows == 0 {
+        http.Error(w, "Could not find matching server token", http.StatusUnauthorized)
+        return
+    }
+
+    /* Create User */
+    userIp := getUserIp(r)
+    username := r.PostForm["username"][0]
+    password := r.PostForm["password"][0]
+    available, err := c.db.CreateUser(username, password, userIp)
+    if err != nil {
+        http.Error(w, "Error creating user", http.StatusInternalServerError)
+        return
+    }
+    if !available {
+        http.Error(w, "Username already taken", http.StatusUnauthorized)
+        return
+    }
+
+    /* Login User */
+    c.AttemptUserLogin(w, r)
 }
