@@ -6,14 +6,6 @@ import (
     "strings"
 )
 
-func GetUserIp(r *http.Request) string {
-    userIp := r.Header.Get("X-Forwarded-For")
-    if userIp == "" {
-        userIp = r.RemoteAddr
-    }
-    return userIp
-}
-
 func GetBearerToken(r *http.Request) (string, error) {
     accessToken := r.Header.Get("Authorization")
     if accessToken == "" {

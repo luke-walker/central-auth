@@ -19,7 +19,7 @@ func AuthenticateUser(db *database.Database, admin bool) func(http.Handler) http
             }
 
             /* Check Session */
-            userIp := controllers.GetUserIp(r)
+            userIp := r.RemoteAddr
             sessionInfo, numRows, err := db.GetSessionByUserIPAndAccessToken(userIp, accessToken)
             if err != nil {
                 http.Error(w, "Error retrieving session", http.StatusInternalServerError)

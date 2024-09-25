@@ -7,7 +7,7 @@ import (
     "time"
 
     "github.com/go-chi/chi/v5"
-    //chiMiddleware "github.com/go-chi/chi/v5/middleware"
+    chiMiddleware "github.com/go-chi/chi/v5/middleware"
     "github.com/go-chi/cors"
     "github.com/go-chi/httprate"
     _ "github.com/joho/godotenv/autoload"
@@ -41,7 +41,7 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
         AllowCredentials: true,
     }))
     r.Use(httprate.LimitByIP(100, time.Minute))
-    //r.Use(chiMiddleware.RealIP)
+    r.Use(chiMiddleware.RealIP)
 
     r.Route("/auth", func(r chi.Router) {
         r.Group(func(r chi.Router) {
