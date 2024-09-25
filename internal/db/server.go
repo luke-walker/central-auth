@@ -34,7 +34,10 @@ func (db *Database) GetAllServerInfo() ([]ServerInfo, int, error) {
     scanFn := func(rows pgx.Rows) (int, error) {
         for rows.Next() {
             var serverInfo ServerInfo
-            rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
+            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
+            if err != nil {
+                continue
+            }
             serverInfos = append(serverInfos, serverInfo)
         }
         return len(serverInfos), nil
@@ -53,8 +56,8 @@ func (db *Database) GetServerInfoByToken(token string) (ServerInfo, int, error) 
     var serverInfo ServerInfo 
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
-            return 1, nil
+            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
+            return 1, err
         }
         return 0, nil
     }
@@ -72,8 +75,8 @@ func (db *Database) GetServerInfoByID(id string) (ServerInfo, int, error) {
     var serverInfo ServerInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
-            return 1, nil
+            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
+            return 1, err
         }
         return 0, nil
     }

@@ -32,8 +32,8 @@ func (db *Database) CheckSession(userIp string, accessToken string) (bool, error
     var sessionInfo SessionInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&sessionInfo.Expires)
-            return 1, nil
+            err := rows.Scan(&sessionInfo.Expires)
+            return 1, err
         }
         return 0, nil
     }
@@ -58,8 +58,8 @@ func (db *Database) GetSessionByUserIPAndToken(userIp string, userToken string) 
     var sessionInfo SessionInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&sessionInfo.UserIP, &sessionInfo.UserToken, &sessionInfo.AccessToken, &sessionInfo.Expires)
-            return 1, nil
+            err := rows.Scan(&sessionInfo.UserIP, &sessionInfo.UserToken, &sessionInfo.AccessToken, &sessionInfo.Expires)
+            return 1, err
         }
         return 0, nil
     }
@@ -86,8 +86,8 @@ func (db *Database) GetSessionByUserIPAndAccessToken(userIp string, accessToken 
     var sessionInfo SessionInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&sessionInfo.UserIP, &sessionInfo.UserToken, &sessionInfo.AccessToken, &sessionInfo.Expires)
-            return 1, nil
+            err := rows.Scan(&sessionInfo.UserIP, &sessionInfo.UserToken, &sessionInfo.AccessToken, &sessionInfo.Expires)
+            return 1, err
         }
         return 0, nil
     }

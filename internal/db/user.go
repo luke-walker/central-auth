@@ -47,8 +47,8 @@ func (db *Database) GetUserInfoByUsername(username string) (UserInfo, int, error
     var userInfo UserInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&userInfo.ID, &userInfo.Token, &userInfo.Username, &userInfo.Password, &userInfo.LastIP, &userInfo.Admin)
-            return 1, nil
+            err := rows.Scan(&userInfo.ID, &userInfo.Token, &userInfo.Username, &userInfo.Password, &userInfo.LastIP, &userInfo.Admin)
+            return 1, err
         }
         return 0, nil
     }
@@ -66,12 +66,22 @@ func (db *Database) GetUserInfoByToken(token string) (UserInfo, int, error) {
     var userInfo UserInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            rows.Scan(&userInfo.ID, &userInfo.Token, &userInfo.Username, &userInfo.Password, &userInfo.LastIP, &userInfo.Admin)
-            return 1, nil
+            err := rows.Scan(&userInfo.ID, &userInfo.Token, &userInfo.Username, &userInfo.Password, &userInfo.LastIP, &userInfo.Admin)
+            return 1, err
         }
         return 0, nil
     }
 
     numRows, err := db.Query(scanFn, query, token)
     return userInfo, numRows, err
+}
+
+func (db *Database) SetUserAdminStatusByToken(admin bool, token string) error {
+    query := `
+        UPDATE users
+        SET admin = $1
+        WHERE token = $2`
+
+    _, err := db.Exec(query, admin, token)
+    return err
 }
