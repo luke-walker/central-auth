@@ -37,7 +37,7 @@ func (c *AuthController) GetLoginPage(w http.ResponseWriter, r *http.Request) {
     }
 
     /* Verify Server */
-    serverInfo, numRows, err := c.db.GetServerInfoByToken(serverToken)
+    _, numRows, err := c.db.GetServerInfoByToken(serverToken)
     if err != nil {
         http.Error(w, "Error retrieving server information", http.StatusInternalServerError)
         return
@@ -54,10 +54,8 @@ func (c *AuthController) GetLoginPage(w http.ResponseWriter, r *http.Request) {
         return
     }
     loginTemplate.Execute(w, struct{
-        ServerName string
         ServerToken string
     }{
-        ServerName: serverInfo.Name,
         ServerToken: serverToken,
     })
 }
