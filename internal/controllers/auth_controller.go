@@ -138,6 +138,7 @@ func (c *AuthController) AttemptUserLogin(w http.ResponseWriter, r *http.Request
     http.SetCookie(w, &http.Cookie{
         Name: "access_token",
         Value: sessionInfo.AccessToken,
+        Path: "/",
         Expires: expiresTime,
         HttpOnly: true,
     })
