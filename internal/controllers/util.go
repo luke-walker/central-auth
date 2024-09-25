@@ -1,15 +1,31 @@
 package controllers
 
 import (
+    "errors"
     "net/http"
+    "strings"
 )
 
-func getUserIp(r *http.Request) string {
+func GetUserIp(r *http.Request) string {
     userIp := r.Header.Get("X-Forwarded-For")
     if userIp == "" {
         userIp = r.RemoteAddr
     }
     return userIp
+}
+
+func GetBearerToken(r *http.Request) (string, error) {
+    accessToken := r.Header.Get("Authorization")
+    if accessToken == "" {
+        return accessToken, errors.New("Missing authorization header")
+    }
+    if !strings.HasPrefix(accessToken, "Bearer ") {
+        return accessToken, errors.New("Invalid authorization header (must be bearer)")
+    }
+    if len(accessToken) <= 7 {
+        return accessToken, errors.New("Missing access token in authorization header")
+    }
+    return accessToken[7:], nil
 }
 
 func errInvalidRequestMethod(w http.ResponseWriter) {

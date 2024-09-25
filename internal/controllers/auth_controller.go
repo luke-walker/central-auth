@@ -90,7 +90,7 @@ func (c *AuthController) AttemptUserLogin(w http.ResponseWriter, r *http.Request
     }
 
     /* Verify User */
-    userIp := getUserIp(r)
+    userIp := GetUserIp(r)
     username := r.PostForm["username"][0]
     password := r.PostForm["password"][0]
     userInfo, numRows, err := c.db.GetUserInfoByUsername(username)
@@ -212,7 +212,7 @@ func (c *AuthController) AttemptUserSignUp(w http.ResponseWriter, r *http.Reques
     }
 
     /* Create User */
-    userIp := getUserIp(r)
+    userIp := GetUserIp(r)
     username := r.PostForm["username"][0]
     password := r.PostForm["password"][0]
     available, err := c.db.CreateUser(username, password, userIp)
