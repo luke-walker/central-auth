@@ -105,6 +105,34 @@ func (db *Database) GetSessionByUserIPAndAccessToken(userIp string, accessToken 
     return &sessionInfo, numRows, nil
 }
 
+func (db *Database) GetSessionByAccessToken(accessToken string) (*SessionInfo, int, error) {
+    query := `
+        SELECT user_ip, user_token, access_token, expires
+        FROM sessions
+        WHERE access_token = $1`
+
+    var sessionInfo SessionInfo
+    scanFn := func(rows pgx.Rows) (int, error) {
+        if rows.Next() {
+            err := rows.Scan(&sessionInfo.UserIP, &sessionInfo.UserToken, &sessionInfo.AccessToken, &sessionInfo.Expires)
+            return 1, err
+        }
+        return 0, nil
+    }
+
+    numRows, err := db.Query(scanFn, query, accessToken)
+    if err != nil || numRows == 0 {
+        return nil, numRows, err
+    }
+
+    /* Check Expires */
+    if time.Now().After(sessionInfo.Expires) {
+        return nil, 0, nil
+    }
+
+    return &sessionInfo, numRows, nil
+}
+
 func (db *Database) CheckSessionExists(userIp string, userToken string) (bool, error) {
     if sessionInfo, numRows, err := db.GetSessionByUserIPAndToken(userIp, userToken); sessionInfo == nil || numRows == 0 || err != nil {
         return false, err
