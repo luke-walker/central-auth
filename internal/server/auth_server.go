@@ -33,11 +33,15 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
     r := chi.NewRouter()
     r.Use(httprate.LimitByIP(100, time.Minute))
     r.Route("/auth", func(r chi.Router) {
-        /* /auth */
-        r.With(middleware.AuthenticateUser(db, false)).Post("/", func(w http.ResponseWriter, r *http.Request) {}) // could this function be nil instead?
+        r.Group(func(r chi.Router) {
+            r.Use(middleware.AddBearerTokenHeader)
 
-        /* /auth/admin */
-        r.With(middleware.AuthenticateUser(db, true)).Post("/admin", func(w http.ResponseWriter, r *http.Request) {})
+            /* /auth */
+            r.With(middleware.AuthenticateUser(db, false)).Post("/", func(w http.ResponseWriter, r *http.Request) {}) // could this function be nil instead?
+
+            /* /auth/admin */
+            r.With(middleware.AuthenticateUser(db, true)).Post("/admin", func(w http.ResponseWriter, r *http.Request) {})
+        })
 
         /* /auth/login/{serverToken} */
         r.Get("/login/{serverToken}", authController.GetLoginPage)
@@ -58,6 +62,8 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
         }.ValidateData).Post("/signup/{serverToken}", authController.AttemptUserSignUp)
     })
     r.Route("/server", func(r chi.Router) {
+        r.Use(middleware.AuthenticateUser(db, true))
+
         /* /server */
         r.With(govalidate.Validator{
             Fields: govalidate.FieldsMap{
