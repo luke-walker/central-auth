@@ -2,15 +2,20 @@ package server
 
 import (
     "net/http"
+    "os"
+    "strings"
     "time"
 
     "github.com/go-chi/chi/v5"
+    //chiMiddleware "github.com/go-chi/chi/v5/middleware"
+    "github.com/go-chi/cors"
     "github.com/go-chi/httprate"
+    _ "github.com/joho/godotenv/autoload"
     "github.com/luke-walker/go-validate"
 
     "central-auth/internal/controllers"
     "central-auth/internal/db"
-    "central-auth/pkg/middleware" // beware importing /internal/middleware
+    "central-auth/pkg/middleware"
 )
 
 type AuthServer struct {
@@ -31,7 +36,13 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
 
     /* Routers */
     r := chi.NewRouter()
+    r.Use(cors.Handler(cors.Options{
+        AllowedOrigins: strings.Split(os.Getenv("ALLOWED_ORIGINS"), ","),
+        AllowCredentials: true,
+    }))
     r.Use(httprate.LimitByIP(100, time.Minute))
+    //r.Use(chiMiddleware.RealIP)
+
     r.Route("/auth", func(r chi.Router) {
         r.Group(func(r chi.Router) {
             r.Use(middleware.AddBearerTokenHeader)
