@@ -2,8 +2,10 @@ package server
 
 import (
     "net/http"
+    "time"
 
     "github.com/go-chi/chi/v5"
+    "github.com/go-chi/httprate"
     "github.com/luke-walker/go-validate"
 
     "central-auth/internal/controllers"
@@ -29,6 +31,7 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
 
     /* Routers */
     r := chi.NewRouter()
+    r.Use(httprate.LimitByIP(100, time.Minute))
     r.Route("/auth", func(r chi.Router) {
         /* /auth */
         r.With(middleware.AuthenticateUser(db, false)).Post("/", func(w http.ResponseWriter, r *http.Request) {}) // could this function be nil instead?
@@ -38,7 +41,7 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
 
         /* /auth/login/{serverToken} */
         r.Get("/login/{serverToken}", authController.GetLoginPage)
-        r.With(govalidate.Validator{
+        r.With(httprate.LimitByIP(5, time.Minute)).With(govalidate.Validator{
             Fields: govalidate.FieldsMap{
                 "username": { "required": true },
                 "password": { "required": true },
@@ -47,7 +50,7 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
 
         /* /auth/signup/{serverToken} */
         r.Get("/signup/{serverToken}", authController.GetSignupPage)
-        r.With(govalidate.Validator{
+        r.With(httprate.LimitByIP(3, 5*time.Minute)).With(govalidate.Validator{
             Fields: govalidate.FieldsMap{
                 "username": { "required": true },
                 "password": { "required": true },
