@@ -48,10 +48,10 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
             r.Use(middleware.AddBearerTokenHeader)
 
             /* /auth */
-            r.With(middleware.AuthenticateUser(db, false)).Post("/", func(w http.ResponseWriter, r *http.Request) {}) // could this function be nil instead?
+            r.With(middleware.AuthenticateUser(db, false)).Get("/", func(w http.ResponseWriter, r *http.Request) {}) // could this function be nil instead?
 
             /* /auth/admin */
-            r.With(middleware.AuthenticateUser(db, true)).Post("/admin", func(w http.ResponseWriter, r *http.Request) {})
+            r.With(middleware.AuthenticateUser(db, true)).Get("/admin", func(w http.ResponseWriter, r *http.Request) {})
         })
 
         /* /auth/login/{serverToken} */
