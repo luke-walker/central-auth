@@ -227,3 +227,52 @@ func (c *AuthController) AttemptUserSignUp(w http.ResponseWriter, r *http.Reques
     /* Login User */
     c.AttemptUserLogin(w, r)
 }
+
+func (c *AuthController) AttemptUserLogout(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        errInvalidRequestMethod(w)
+        return
+    }
+
+    /*
+    serverToken := chi.URLParam(r, "serverToken")
+    if serverToken == "" {
+        http.Error(w, "Missing server token as URL parameter", http.StatusBadRequest)
+        return
+    }
+    */
+
+    /* Verify Server */
+    /*
+    _, numRows, err := c.db.GetServerInfoByToken(serverToken)
+    if err != nil {
+        http.Error(w, "Error retrieving server information", http.StatusInternalServerError)
+        return
+    }
+    if numRows == 0 {
+        http.Error(w, "Could not find matching server token", http.StatusUnauthorized)
+        return
+    }
+    */
+
+    /* Access Token */
+    accessToken, err := GetBearerToken(r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    /* Destroy Session */
+    if _, err = c.db.DestroySessionByAccessToken(accessToken); err != nil {
+        http.Error(w, "Error destroying session", http.StatusInternalServerError)
+        return
+    }
+
+    /* Delete Cookie */
+    http.SetCookie(w, &http.Cookie{
+        Name: "access_token",
+        Value: "",
+        Path: "/",
+        MaxAge: -1,
+    })
+}

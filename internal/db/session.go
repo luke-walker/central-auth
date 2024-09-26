@@ -151,3 +151,15 @@ func (db *Database) DestroySession(userIp string, userToken string) (bool, error
     }
     return true, nil
 }
+
+func (db *Database) DestroySessionByAccessToken(accessToken string) (bool, error) {
+    query := `
+        DELETE FROM sessions
+        WHERE access_token = $1`
+
+    numRows, err := db.Exec(query, accessToken)
+    if err != nil || numRows == 0 {
+        return false, err
+    }
+    return true, nil
+}

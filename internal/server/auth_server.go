@@ -52,6 +52,9 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
 
             /* /auth/admin */
             r.With(middleware.AuthenticateUser(db, true)).Get("/admin", func(w http.ResponseWriter, r *http.Request) {})
+
+            /* /auth/logout */
+            r.Post("/logout", authController.AttemptUserLogout)
         })
 
         /* /auth/login/{serverToken} */
@@ -71,6 +74,7 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
                 "password": { "required": true },
             },
         }.ValidateData).Post("/signup/{serverToken}", authController.AttemptUserSignUp)
+
     })
     r.Route("/server", func(r chi.Router) {
         r.Use(middleware.AuthenticateUser(db, true))
