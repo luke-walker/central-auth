@@ -33,6 +33,7 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
     /* Controllers */
     authController := controllers.NewAuthController(db)
     serverController := controllers.NewServerController(db)
+    userController := controllers.NewUserController(db)
 
     /* Routers */
     r := chi.NewRouter()
@@ -87,6 +88,12 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
                 "redirect": { "required": true },
             },
         }.ValidateData).Post("/", serverController.CreateServer)
+    })
+    r.Route("/user", func(r chi.Router) {
+        r.Use(middleware.AddBearerTokenHeader)
+
+        /* /user */
+        r.Get("/", userController.GetUserInfo)
     })
 
     return &AuthServer{

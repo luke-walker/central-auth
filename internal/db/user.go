@@ -76,6 +76,26 @@ func (db *Database) GetUserInfoByToken(token string) (UserInfo, int, error) {
     return userInfo, numRows, err
 }
 
+func (db *Database) GetUserInfoByAccessToken(accessToken string) (UserInfo, int, error) {
+    query := `
+        SELECT u.token, u.username, u.last_ip
+        FROM users u
+        JOIN sessions s ON s.user_token = u.token
+        WHERE s.access_token = $1`
+    
+    var userInfo UserInfo
+    scanFn := func(rows pgx.Rows) (int, error) {
+        if rows.Next() {
+            err := rows.Scan(&userInfo.Token, &userInfo.Username, &userInfo.LastIP)
+            return 1, err
+        }
+        return 0, nil
+    }
+
+    numRows, err := db.Query(scanFn, query, accessToken)
+    return userInfo, numRows, err
+}
+
 func (db *Database) SetUserAdminStatusByToken(admin bool, token string) error {
     query := `
         UPDATE users
