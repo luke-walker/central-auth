@@ -141,6 +141,7 @@ func (c *AuthController) AttemptUserLogin(w http.ResponseWriter, r *http.Request
         Path: "/",
         Expires: expiresTime,
         HttpOnly: true,
+        SameSite: 3,
     })
 
     /* Redirect */
