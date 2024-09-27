@@ -96,8 +96,11 @@ func main() {
                 addrs = strings.Split(addrsStr, ",")
             }
 
-            fmt.Print("Redirect URL: ")
-            redirect := getInput(reader)
+            redirect := ""
+            for redirect == "" {
+                fmt.Print("Redirect URL: ")
+                redirect = getInput(reader)
+            }
 
             if err = db.CreateServer(name, addrs, redirect); err != nil {
                 fmt.Printf("Failed to create server: %v", err)
@@ -115,6 +118,8 @@ func main() {
         case "6":
             break
         case "7":
+            break
+        case "8":
             fmt.Println("=== Promote/Demote User ===")
             
             username := ""
