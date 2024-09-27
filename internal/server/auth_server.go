@@ -68,7 +68,6 @@ func NewAuthServer(addr string, dbURL string) (*AuthServer, error) {
         }.ValidateData).Post("/login/{serverToken}", authController.AttemptUserLogin)
 
         /* /auth/signup/{serverToken} */
-        r.Get("/signup/{serverToken}", authController.GetSignupPage)
         r.With(httprate.LimitByIP(3, 5*time.Minute)).With(govalidate.Validator{
             Fields: govalidate.FieldsMap{
                 "username": { "required": true },

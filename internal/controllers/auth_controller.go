@@ -147,42 +147,6 @@ func (c *AuthController) AttemptUserLogin(w http.ResponseWriter, r *http.Request
     http.Redirect(w, r, serverInfo.Redirect, http.StatusSeeOther)
 }
 
-func (c *AuthController) GetSignupPage(w http.ResponseWriter, r *http.Request) {
-    if r.Method != http.MethodGet {
-        errInvalidRequestMethod(w)
-        return
-    }
-
-    serverToken := chi.URLParam(r, "serverToken")
-    if serverToken == "" {
-        http.Error(w, "Missing server token as URL parameter", http.StatusBadRequest)
-        return
-    }
-    
-    /* Verify Server */
-    _, numRows, err := c.db.GetServerInfoByToken(serverToken)
-    if err != nil {
-        http.Error(w, "Error retrieving server information", http.StatusInternalServerError)
-        return
-    }
-    if numRows == 0 {
-        http.Error(w, "Could not find matching server token", http.StatusUnauthorized)
-        return
-    }
-    
-    /* Send Signup Page */
-    signupTemplate, err := template.ParseFiles(fmt.Sprintf("%s/internal/templates/signup.html.tmpl", os.Getenv("PROJECT_PATH")))
-    if err != nil {
-        http.Error(w, "Error parsing signup.html template", http.StatusInternalServerError)
-        return
-    }
-    signupTemplate.Execute(w, struct{
-        ServerToken string
-    }{
-        ServerToken: serverToken,
-    })
-}
-
 func (c *AuthController) AttemptUserSignUp(w http.ResponseWriter, r *http.Request) {
     if r.Method != http.MethodPost {
         errInvalidRequestMethod(w)
