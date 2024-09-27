@@ -3,6 +3,7 @@ CREATE TABLE servers (
     id              uuid UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     name            text UNIQUE NOT NULL,
     addresses       text[],
+    proxy_url       text,
     redirect_url    text NOT NULL,
     token           uuid UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     PRIMARY KEY (id)

@@ -12,6 +12,7 @@ type Server struct {
     ID string `json:"id"`
     Name string `json:"name"`
     Addrs []string `json:"addrs"`
+    Proxy string `json:"proxy"`
     Redirect string `json:"redirect"`
     Token string `json:"token"`
 }
@@ -38,7 +39,7 @@ func (c *ServerController) CreateServer(w http.ResponseWriter, r *http.Request) 
         return
     }
 
-    if err := c.db.CreateServer(data.Name, data.Addrs, data.Redirect); err != nil {
+    if err := c.db.CreateServer(data.Name, data.Addrs, data.Proxy, data.Redirect); err != nil {
         http.Error(w, fmt.Sprintf("Error creating server: %v", err), http.StatusInternalServerError)
         return
     }

@@ -71,6 +71,13 @@ func main() {
                     fmt.Printf("\t\t%s\n", addr)
                 }
 
+                fmt.Print("\tProxy URL: ")
+                if info.Proxy == "" {
+                    fmt.Println("<not set>")
+                } else {
+                    fmt.Println(info.Proxy)
+                }
+
                 fmt.Print("\tRedirect URL: ")
                 if info.Redirect == "" {
                     fmt.Println("<not set>")
@@ -96,13 +103,16 @@ func main() {
                 addrs = strings.Split(addrsStr, ",")
             }
 
+            fmt.Print("Proxy URL: ")
+            proxy := getInput(reader)
+
             redirect := ""
             for redirect == "" {
                 fmt.Print("Redirect URL: ")
                 redirect = getInput(reader)
             }
 
-            if err = db.CreateServer(name, addrs, redirect); err != nil {
+            if err = db.CreateServer(name, addrs, proxy, redirect); err != nil {
                 fmt.Printf("Failed to create server: %v", err)
                 break
             }

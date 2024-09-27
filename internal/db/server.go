@@ -7,34 +7,30 @@ import (
 type ServerInfo struct {
     Name string
     Addrs []string
+    Proxy string
     Redirect string
     Token string
 }
 
-func (db *Database) CreateServer(name string, addrs []string, redirect string) error {
+func (db *Database) CreateServer(name string, addrs []string, proxy string, redirect string) error {
     query := `
-        INSERT INTO servers (name, addresses, redirect_url)
-        VALUES ($1, $2, $3)`
+        INSERT INTO servers (name, addresses, proxy_url, redirect_url)
+        VALUES ($1, $2, $3, $4)`
 
-    var err error
-    if redirect == "" {
-        _, err = db.Exec(query, name, addrs, nil)
-    } else {
-        _, err = db.Exec(query, name, addrs, redirect)
-    }
+    _, err := db.Exec(query, name, addrs, proxy, redirect)
     return err
 }
 
 func (db *Database) GetAllServerInfo() ([]ServerInfo, int, error) {
     query := `
-        SELECT name, addresses, redirect_url, token
+        SELECT name, addresses, proxy_url, redirect_url, token
         FROM servers`
 
     var serverInfos []ServerInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         for rows.Next() {
             var serverInfo ServerInfo
-            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
+            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Proxy, &serverInfo.Redirect, &serverInfo.Token)
             if err != nil {
                 continue
             }
@@ -49,14 +45,14 @@ func (db *Database) GetAllServerInfo() ([]ServerInfo, int, error) {
 
 func (db *Database) GetServerInfoByToken(token string) (ServerInfo, int, error) {
     query := `
-        SELECT name, addresses, redirect_url, token
+        SELECT name, addresses, proxy_url, redirect_url, token
         FROM servers
         WHERE token = $1`
 
     var serverInfo ServerInfo 
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
+            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Proxy, &serverInfo.Redirect, &serverInfo.Token)
             return 1, err
         }
         return 0, nil
@@ -68,14 +64,14 @@ func (db *Database) GetServerInfoByToken(token string) (ServerInfo, int, error) 
 
 func (db *Database) GetServerInfoByID(id string) (ServerInfo, int, error) {
     query := `
-        SELECT id, name, addresses, redirect_url, token
+        SELECT name, addresses, proxy_url, redirect_url, token
         FROM servers
         WHERE id = $1`
 
     var serverInfo ServerInfo
     scanFn := func(rows pgx.Rows) (int, error) {
         if rows.Next() {
-            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Redirect, &serverInfo.Token)
+            err := rows.Scan(&serverInfo.Name, &serverInfo.Addrs, &serverInfo.Proxy, &serverInfo.Redirect, &serverInfo.Token)
             return 1, err
         }
         return 0, nil
