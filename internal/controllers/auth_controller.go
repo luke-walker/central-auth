@@ -5,6 +5,7 @@ import (
     "html/template"
     "net/http"
     "os"
+    "strconv"
     "time"
 
     "github.com/go-chi/chi/v5"
@@ -114,8 +115,12 @@ func (c *AuthController) AttemptUserLogin(w http.ResponseWriter, r *http.Request
     }
 
     /* Create Session */
-    const EXPIRES_DAYS = 3
-    expiresTime := time.Now().Add(EXPIRES_DAYS * 24 * time.Hour)
+    cookieDuration, err := strconv.Atoi(os.Getenv("COOKIE_DURATION"))
+    if err != nil {
+        http.Error(w, "Error creating session", http.StatusInternalServerError)
+        return
+    }
+    expiresTime := time.Now().Add(time.Duration(cookieDuration) * time.Hour)
     if err = c.db.CreateSession(userIp, userInfo.Token, expiresTime); err != nil {
         http.Error(w, fmt.Sprintf("Error creating new session for username '%s'", username), http.StatusInternalServerError)
         return
