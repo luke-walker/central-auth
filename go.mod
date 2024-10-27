@@ -1,4 +1,4 @@
-module central-auth
+module github.com/luke-walker/central-auth
 
 go 1.22.3
 

@@ -4,7 +4,7 @@ import (
     "encoding/json"
     "net/http"
 
-    "central-auth/internal/db"
+    "github.com/luke-walker/central-auth/internal/db"
 )
 
 /*type User struct {

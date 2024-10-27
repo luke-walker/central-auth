@@ -11,8 +11,8 @@ import (
     "github.com/go-chi/chi/v5"
     _ "github.com/joho/godotenv/autoload"
 
-    "central-auth/internal/crypto"
-    "central-auth/internal/db"
+    "github.com/luke-walker/central-auth/internal/crypto"
+    "github.com/luke-walker/central-auth/internal/db"
 )
 
 type AuthController struct {
@@ -205,27 +205,6 @@ func (c *AuthController) AttemptUserLogout(w http.ResponseWriter, r *http.Reques
         errInvalidRequestMethod(w)
         return
     }
-
-    /*
-    serverToken := chi.URLParam(r, "serverToken")
-    if serverToken == "" {
-        http.Error(w, "Missing server token as URL parameter", http.StatusBadRequest)
-        return
-    }
-    */
-
-    /* Verify Server */
-    /*
-    _, numRows, err := c.db.GetServerInfoByToken(serverToken)
-    if err != nil {
-        http.Error(w, "Error retrieving server information", http.StatusInternalServerError)
-        return
-    }
-    if numRows == 0 {
-        http.Error(w, "Could not find matching server token", http.StatusUnauthorized)
-        return
-    }
-    */
 
     /* Access Token */
     accessToken, err := GetBearerToken(r)

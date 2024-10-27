@@ -3,8 +3,8 @@ package middleware
 import (
     "net/http"
 
-    "central-auth/internal/controllers"
-    "central-auth/internal/db"
+    "github.com/luke-walker/central-auth/internal/controllers"
+    "github.com/luke-walker/central-auth/internal/db"
 )
 
 /* Currently only supports JSON body */

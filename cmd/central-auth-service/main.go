@@ -8,7 +8,7 @@ import (
 
     "github.com/joho/godotenv"
 
-    "central-auth/internal/server"
+    "github.com/luke-walker/central-auth/internal/server"
 )
 
 func main() {

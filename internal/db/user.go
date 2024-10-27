@@ -3,7 +3,7 @@ package database
 import (
     "github.com/jackc/pgx/v5"
 
-    "central-auth/internal/crypto"
+    "github.com/luke-walker/central-auth/internal/crypto"
 )
 
 type UserInfo struct {

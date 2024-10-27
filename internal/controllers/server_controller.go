@@ -5,7 +5,7 @@ import (
     "fmt"
     "net/http"
 
-    "central-auth/internal/db"
+    "github.com/luke-walker/central-auth/internal/db"
 )
 
 type Server struct {

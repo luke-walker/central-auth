@@ -13,9 +13,9 @@ import (
     _ "github.com/joho/godotenv/autoload"
     "github.com/luke-walker/go-validate"
 
-    "central-auth/internal/controllers"
-    "central-auth/internal/db"
-    "central-auth/pkg/middleware"
+    "github.com/luke-walker/central-auth/internal/controllers"
+    "github.com/luke-walker/central-auth/internal/db"
+    "github.com/luke-walker/central-auth/pkg/middleware"
 )
 
 type AuthServer struct {
